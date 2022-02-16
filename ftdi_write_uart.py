@@ -1,5 +1,5 @@
 """
-Script to read data from UART with FTDI
+Script to write data to UART with FTDI
 
 Copyright (c) 2022 Valerio Spinogatti
 Licensed under GNU license
