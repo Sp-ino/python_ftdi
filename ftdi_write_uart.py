@@ -11,6 +11,7 @@ import pyftdi.serialext as pser
 import pyftdi.ftdi as ftdi
 import serial.serialutil
 from signal import signal, SIGINT
+from argparse import ArgumentParser
 
 
 def exit_handler(signal_received, frame):
@@ -44,8 +45,22 @@ def find_devices():
 
 
 def main():
+    #Parse arguments
+    p = ArgumentParser(description = "Program for reading utf-8 encoded UART bytes with FTDI.")
+
+    p.add_argument("baudrate",
+                    type = int,
+                    help = "Baudrate of UART interface.")
+    
+    p.add_argument("-u",
+                    "--url",
+                    type = str,
+                    help = "URL of the FTDI device.")
+    
+    args = p.parse_args()
+
     # Read-only variables
-    BAUDRATE = 38400
+    BAUDRATE = args.baudrate
     STANDARD_BAUDRATES = [50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
     if BAUDRATE not in STANDARD_BAUDRATES:
@@ -58,17 +73,21 @@ def main():
     print("\nProgram for reading utf-8 encoded UART bytes with FTDI. Hit CTRL+C to terminate.")
 
     # Find device(s)
-    device_url = find_devices()
-    if not device_url:
-        raise OSError("No FTDI device found. Exiting.")
+    if args.url is None:
+        device_url = find_devices()
+        if not device_url:
+            raise OSError("No FTDI device found. Exiting.")
+    else:
+        device_url = args.url
 
-    print(device_url)
+    print("Connecting to device with URL ", device_url)
 
     try:
-        ftdi_dev = pser.serial_for_url("ftdi://0x403:0x6001/1", baudrate = BAUDRATE)
+        ftdi_dev = pser.serial_for_url(device_url, baudrate = BAUDRATE)
     except serial.serialutil.SerialException as e:
         raise OSError(e)
 
+    # Main while loop
     while True:
         msg = input("Insert message to send: ")
         n_sent_bytes = ftdi_dev.write(bytes(msg, "utf-8"))
