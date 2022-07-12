@@ -1,1 +1,4 @@
-*.code-workspace
+*code-workspace
+*.bak
+*.pyc
+*.py.bak
