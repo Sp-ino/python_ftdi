@@ -7,7 +7,6 @@ Licensed under GNU license
 ftdi_read_uart.py
 """
 
-from click import argument
 import pyftdi.serialext as pser
 import pyftdi.ftdi as ftdi
 import serial.serialutil
@@ -39,7 +38,7 @@ def find_devices():
         bus = possible_ftdi_devices[0][0][2]
         addr = possible_ftdi_devices[0][0][3]
         # sernum = possible_ftdi_devices[0][0][4]
-        return f"ftdi://{str(hex(vid))}:{str(hex(pid))}:{bus}:{addr}/1"
+        return f"ftdi:///1"
 
     elif len(possible_ftdi_devices) > 1:
         print("Warning: more than one FTDI device found. \nReturning URL of the first one that was enumerated.")
@@ -101,8 +100,8 @@ def main():
         except UnicodeDecodeError as e:
             print("\nThere was an error while decoding received bytes. Maybe some bytes have been corrupted.\n")
             print(e)
-        print(received_bytes.decode('utf-8'))
+        print(received_bytes.hex())
 
 
 if __name__ == "__main__":
-    main()
+    main()  

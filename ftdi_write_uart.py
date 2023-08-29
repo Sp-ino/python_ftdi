@@ -38,7 +38,7 @@ def find_devices():
         bus = possible_ftdi_devices[0][0][2]
         addr = possible_ftdi_devices[0][0][3]
         # sernum = possible_ftdi_devices[0][0][4]
-        return f"ftdi://{str(hex(vid))}:{str(hex(pid))}:{bus}:{addr}/1"
+        return f"ftdi:///1"
 
     elif len(possible_ftdi_devices) > 1:
         print("Warning: more than one FTDI device found. \nReturning URL of the first one that was enumerated.")
@@ -95,8 +95,14 @@ def main():
 
     # Main while loop
     while True:
-        msg = input("Insert message to send: ")
-        n_sent_bytes = ftdi_dev.write(bytes(msg, "utf-8"))
+        msg = input("Insert message to send (the message must be a string that represents bytes in hexadecimal format): ")
+        # bytes_to_send = bytes(msg, "utf-8")
+        try:
+            bytes_to_send = bytes.fromhex(msg)
+        except ValueError:
+            print("Wrong message format! The message must be a string representing bytes in hexadecimal notation. The only allowed characters are 0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f.")
+            continue
+        n_sent_bytes = ftdi_dev.write(bytes_to_send)
         print(f"Sent {n_sent_bytes} bytes")
 
 
